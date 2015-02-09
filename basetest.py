@@ -7,8 +7,6 @@ import unittest
 import settings
 import requests
 import copy
-from copy import deepcopy
-
 
 class BaseTest(unittest.TestCase):
     """
@@ -21,7 +19,7 @@ class BaseTest(unittest.TestCase):
         print the case name and description for each test case running.
         """
         case_id = self.__class__.__name__.replace('Test','').replace('_','-')
-        print '\n%s - %s' % (case_id, self.__doc__[1:-1].replace('\t',''),)
+        print '\n%s - %s' % (case_id, self.__doc__[1:-1].replace('\t',''), )
         self.settings = settings # TODO: this must be given by runner later.
         
     def verify_redirection(self, redirections, headers={}, cookies={}):
@@ -39,7 +37,7 @@ class BaseTest(unittest.TestCase):
             res = requests.get(url, headers=header, allow_redirects=False, cookies=cookies)
             self.settings.verbose_print('%d - %s' % (res.status_code, res.headers['Location']))
             self.assertIn(res.status_code, [301, 302], 'Redirection Not returned')
-            self.assertEqual(res.headers['Location'], dest, 'Redirection location is wrong:%s' % res.headers['Location'])
+            self.assertEqual(res.headers['Location'], dest, 'Redirection location is wrong:%s found, %s expected' % (res.headers['Location'], dest))
             
     def verify_remove_redirection(self, remove_redirections, headers={}, cookies={}):
         """
@@ -59,6 +57,15 @@ class BaseTest(unittest.TestCase):
                 self.assertNotEqual(res.headers['Location'], dest, 'Redirection is not removed for %s' % source)
             else:
                 settings.verbose_print('%d - %s' % (res.status_code, res.url))
+                
+    def verify_update_redirection(self, updated_redirections, headers={}, cookies={}):
+        """
+        verify whether the given triples are correctly updated.
+        updated_redirections are list of triples, such as [('src', 'old-dest', 'new-dest'),] 
+        """
+        for source, old_dest, new_dest in updated_redirections:
+            self.verify_remove_redirection([(source, old_dest),], headers=headers, cookies=cookies)
+            self.verify_redirection([(source, new_dest),], headers=headers, cookies=cookies)
                 
     def verify_cache(self, source, ttl, cookies={}):
         """
