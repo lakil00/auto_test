@@ -117,14 +117,14 @@ class BaseTest(unittest.TestCase):
                    'pt', 'ro', 'rs', 'ru', 'sa', 'se', 'sec', 'sg', 'sk', 'th', 'tr', 'tw', 'ua_ru', 'ua', 'uk', 'us', 've', 'vn', 'za',]
         for cookie in cookie1:
             url = self.settings.BASE_URL+base_url
-            dest = '/%s%s' % (cookie, base_url)
+            dest = '/%s%s' % (cookie, base_url.lower())
             self.settings.verbose_print('requesting %s with cookie %s: %s...' % (url, 'site_cd', cookie))
-            res = requests.get(url, headers=self.settings.HEADERS, allow_redirects=False, cookies={'site_cd': cookie})
-            self.settings.verbose_print('%d - %s' % (res.status_code, res.headers['Location']))
-            self.assertIn(res.status_code, [301, 302], 'Redirection Not returned')
-            self.assertEqual(res.headers['Location'], dest, 
-                             'Redirection location is wrong:%s expected with cookie %s but %s found' % (dest, cookie, res.headers['Location'])
-                             )
+            res = requests.get(url, headers=self.settings.HEADERS, cookies={'site_cd': cookie})
+            self.settings.verbose_print('%d - %s' % (res.status_code, res.url))
+            self.assertGreaterEqual(len(res.history), 1, 'Redirection Not returned')
+            self.assertIn(dest, [x.headers['Location'] for x in res.history], 
+                          'Redirection location is wrong:%s expected with cookie %s but %s found' % (dest, cookie, res.url)
+                          )
         
         #TODO: this conditions are coming from metadata, but this may require to be updated from time to time. don't forget to make it better i.e. automate.
         conditions = [('MX', [(None, '/mx'+base_url),]),
@@ -211,10 +211,9 @@ class BaseTest(unittest.TestCase):
                         header.pop('Accept-Language')
                     url = self.settings.BASE_URL+base_url
                     self.settings.verbose_print('requesting %s from %s...' % (url, country) )
-                    res = requests.get(url, headers=dict(self.settings.HEADERS.items() + header.items()), allow_redirects=False)
-                    self.settings.verbose_print('%d - %s' % (res.status_code, res.headers['Location']))
-                    self.assertIn(res.status_code, [301, 302], 'Redirection Not returned')
-                    self.assertEqual(res.headers['Location'], dest, 
-                                     'Redirection location is wrong:%s expected with country %s but found %s' % (dest, country, res.headers['Location'],) 
-                                     )
-            
+                    res = requests.get(url, headers=dict(self.settings.HEADERS.items() + header.items()) )
+                    self.settings.verbose_print('%d - %s' % (res.status_code, res.url))
+                    self.assertGreaterEqual(len(res.history), 1, 'Redirection Not returned')
+                    self.assertIn(dest.lower(), [x.headers['Location'] for x in res.history], 
+                                  'Redirection location is wrong:%s expected with cookie %s but %s found' % (dest.lower(), cookie, res.url)
+                                  )

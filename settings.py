@@ -23,6 +23,10 @@ PRAGMA = 'akamai-x-cache-on, akamai-x-cache-remote-on, akamai-x-check-cacheable,
 
 HEADERS = {'Host': HOST, 'Pragma': PRAGMA}
 
+UA_STRING = {'iPhone': 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3',
+             'iPad': 'Mozilla/5.0 (iPad; CPU OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3'
+             }
+
 f = open('ip.txt')
 IP = json.loads(f.readline())
 f.close()

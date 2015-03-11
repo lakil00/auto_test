@@ -8,6 +8,8 @@ import basetest
 import unittest
 import requests
 import settings
+import random
+import string
 # import copy
 
 
@@ -211,21 +213,21 @@ class TestF_CS_1052807(basetest.BaseTest):
     def test_updated_redirection(self):
         #geo IP is KR
         geo_header = {'X-Forwarded-For': self.settings.IP['KR']}
-        self.verify_update_redirection([('/','/sec/', '/sec/home'),], headers=geo_header)
+        self.verify_update_redirection([('/','/sec/', '/sec/home/'),], headers=geo_header)
         self.verify_remove_redirection([('/hospitality','/sec/hospitality'),], headers=geo_header)
         self.verify_remove_redirection([('/hospitality/','/sec/hospitality'),], headers=geo_header)
         
         #in mobile device
         mobile_header = {'User-Agent': 'Mozilla/5.0 (Linux; Android 4.4.2; en-us; SAMSUNG-SM-G900A Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/1.6 Chrome/28.0.1500.94 Mobile Safari/537.36'}
-        self.verify_update_redirection([('/sec/index.html','http://m.samsung.com/sec/', 'http://www.samsung.com/sec/home'),], headers=mobile_header)
+        self.verify_update_redirection([('/sec/index.html','http://m.samsung.com/sec/', 'http://www.samsung.com/sec/home/'),], headers=mobile_header)
         
         #cookie 'site_cd' == 'sec'
-        self.verify_update_redirection([('/', '/sec/', '/sec/home'),], cookies={'site_cd': 'sec'})
+        self.verify_update_redirection([('/', '/sec/', '/sec/home/'),], cookies={'site_cd': 'sec'})
         
     def test_new_redirections(self):
-        redirections = [('/sec', 'http://www.samsung.com/sec/home'),
-                        ('/sec/', 'http://www.samsung.com/sec/home'),
-                        ('/sec/index.html', 'http://www.samsung.com/sec/home'),
+        redirections = [('/sec', 'http://www.samsung.com/sec/home/'),
+                        ('/sec/', 'http://www.samsung.com/sec/home/'),
+                        ('/sec/index.html', 'http://www.samsung.com/sec/home/'),
                         ('/sec/business', 'http://www.samsung.com/sec/business/home'),
                         ('/sec/business/', 'http://www.samsung.com/sec/business/home'),
                         ('/sec/business/index.html', 'http://www.samsung.com/sec/business/home'),
@@ -267,7 +269,7 @@ class TestF_CS_1052807(basetest.BaseTest):
                         ('/sec/samsung-apps/foo-bar.do?q=abc', 'http://www.samsung.com/sec/apps/mobile/'),
                         ('/sec/consumer/foo/bar/index.idx?pagetype=type_p2?q=abc', '/sec/consumer/foo/bar/'),
                         ('/sec/function/espsearch/searchResult_mobile_all_p3.do?menu=abc&keywords=param', '/sec/search/?q=param'),
-                        ('/sec/consumer/accessories/', 'http://www.samsung.com/sec/home'),
+                        ('/sec/consumer/accessories/', 'http://www.samsung.com/sec/home/'),
                         ('/sec/support/pcApplication/UPGRADE/', 'http://local.sec.samsung.com/comLocal/support/down/kies_main.do?kind=upgrade'),
                         ('/sec/support/pcApplication/sidesync/', 'http://local.sec.samsung.com/comLocal/support/down/kies_main.do?kind=sidesync'),
                         ('/sec/support/pcApplication/smartswitch/', 'http://local.sec.samsung.com/comLocal/support/down/kies_main.do?kind=smartswitch'),
@@ -402,7 +404,7 @@ class TestF_CS_1081599(basetest.BaseTest):
     /sec/ Korea next generation redirections (some additional redirections from existing ones)
     """
     def test_redirections(self):
-        redirections = [('/sec/consumer/accessories', 'http://www.samsung.com/sec/home'), 
+        redirections = [('/sec/consumer/accessories', 'http://www.samsung.com/sec/home/'), 
                         ('/sec/support/pcApplication/UPGRADE', 'http://local.sec.samsung.com/comLocal/support/down/kies_main.do?kind=upgrade'), 
                         ('/sec/support/pcApplication/sidesync', 'http://local.sec.samsung.com/comLocal/support/down/kies_main.do?kind=sidesync'), 
                         ('/sec/support/pcApplication/smartswitch', 'http://local.sec.samsung.com/comLocal/support/down/kies_main.do?kind=smartswitch'), 
@@ -416,10 +418,309 @@ class TestF_CS_1081599(basetest.BaseTest):
                         ('/sec/aboutsamsung/information/philosophy/principle.html', 'http://www.samsung.com/sec/aboutsamsung/movie/companymovie.html'), 
                         ('/sec/article/display-brandstory', 'http://www.samsung.com/sec/consumer/it/display/'), 
                         ('/sec/article/display-brandstory/', 'http://www.samsung.com/sec/consumer/it/display/'), 
-                        ('/sec/galaxys4zoom/', 'http://www.samsung.com/sec/home'),
-                        ('/sec/galaxys4zoom', 'http://www.samsung.com/sec/home'), ]
+                        ('/sec/galaxys4zoom/', 'http://www.samsung.com/sec/home/'),
+                        ('/sec/galaxys4zoom', 'http://www.samsung.com/sec/home/'), ]
         self.verify_redirection(redirections)
 
+class TestF_CS_1083968(basetest.BaseTest):
+    """
+    partial removal of /galaxy from content targeting.
+    only US, CA, CA_FR, PL, TH will be still using content targeting for /galaxy
+    """
+    
+    def test_galaxy_removal(self):
+        self.partial_removal_of_content_targeting('/galaxy')
+        self.partial_removal_of_content_targeting('/galaxy/')
+        self.partial_removal_of_content_targeting('/gaLaXy/')
+        self.partial_removal_of_content_targeting('/Galaxy')
         
+    def test_possible_marginal_cases(self):
+        self.verify_redirection([('/galaxy/?cid=100&ask=tom', '/global/galaxy/?cid=100&ask=tom'),
+                                 ('/galaxy?q=200', '/global/galaxy/?q=200')
+                                 ], {'X-Forwarded-For': self.settings.IP['FR']})
+        self.verify_redirection([('/galaxy/?cid=100&ask=tom', '/global/galaxy/?cid=100&ask=tom'),
+                                 ('/galaxy?q=200', '/global/galaxy/?q=200')
+                                 ], {'X-Forwarded-For': self.settings.IP['US']})
+        
+    
+    def partial_removal_of_content_targeting(self, base_url):
+        #test with site_cd cookie.
+        cookie1 = ['ae_ar', 'ae', 'africa_en', 'africa_fr', 'africa_pt', 'ar', 'at', 'au', 'be_fr', 'be', 'bg', 
+                   'br', 'ch_fr', 'ch', 'cl', 'cn', 'co', 'cz', 'de', 'dk', 'ee', 'eg', 'es', 'fi', 
+                   'fr', 'gr', 'hk_en', 'hk', 'hr', 'hu', 'id', 'ie', 'il', 'in', 'iran', 'it', 'jp', 'kz_ru', 'latin', 
+                   'latin_en', 'levant', 'lt', 'lv', 'mx', 'my', 'n_africa', 'nl', 'no', 'nz', 'pe', 'ph', 'pk',  
+                   'pt', 'ro', 'rs', 'ru', 'sa', 'se', 'sec', 'sg', 'sk', 'tr', 'tw', 'ua_ru', 'ua', 'uk', 've', 'vn', 'za',]
+        for cookie in cookie1:
+            url = self.settings.BASE_URL+base_url
+            dest = '/global/galaxy/'
+            self.settings.verbose_print('requesting %s with cookie %s: %s...' % (url, 'site_cd', cookie))
+            res = requests.get(url, headers=self.settings.HEADERS, allow_redirects=False, cookies={'site_cd': cookie})
+            self.settings.verbose_print('%d - %s' % (res.status_code, res.headers['Location']))
+            self.assertIn(res.status_code, [301, 302], 'Redirection Not returned')
+            self.assertEqual(res.headers['Location'], dest, 
+                             'Redirection location is wrong:%s expected with cookie %s but %s found' % (dest, cookie, res.headers['Location'])
+                             )
+        #most of countries now go to /global/galaxy with the querystring attached.
+        countries = ['MX', 'AR', 'UY', 'PY', 'BR', 'CO', 'CL', 'PE', 'BO', 'CR', 'EC', 'SV', 'GT', 'HN', 'NI', 'PA', 'DO', 'CU', 
+                     'AW', 'BB', 'BM', 'HT', 'JM', 'MQ', 'TT', 'MF', 'KY', 'AG', 'SR', 'BZ', 'LC', 'GY', 'GP', 'AT', 'BE', 'NL', 
+                     'CZ', 'SK', 'HU', 'PT', 'SE', 'FI', 'NO', 'DK', 'TR', 'ES', 'IT', 'GB', 'IE', 'FR', 'CH', 'GR', 'CN', 'JP', 
+                     'HK', 'TW', 'KR', 'AU', 'SG', 'PH', 'MY', 'IN', 'ID', 'VN', 'NZ', 'IR', 'EE', 'LV', 'LT', 'BG', 'RS', 'HR', 
+                     'UA', 'DE', 'RU', 'IL', 'KZ', 'RO', 'VE', 'PS', 'IQ', 'LB', 'SY', 'JO', 'CI', 'MR', 'GW', 'CV', 'SA', 'LY', 
+                     'SD', 'EG', 'ER', 'SO', 'PK', 'AF', 'AE', 'KW', 'OM', 'QA', 'BH', 'YE', 'ZA', 'ZM', 'ZW', 'SZ', 'NA', 'MW', 
+                     'BW', 'KE', 'NG', 'ET', 'GH', 'UG', 'TZ', 'GM', 'LR', 'SL', 'AO', 'MZ', 'MA', 'DZ', 'TN', 'SN', 'CD', 'CM', 
+                     'CI', 'TG', 'TD', 'RW', 'ML', 'BJ', 'NE', 'DJ', 'GA', 'CG', 'BI', 'BF', 'KM', 'CF', 'GN', 'RE', 'MU', 'MG', 'YT', 'SC',
+                     'US', 'CA', 'PL', 'TH']
+        for country in countries:
+            add_query = bool(random.getrandbits(1))
+            qstring = ''
+            if add_query:
+                key = ''.join(random.choice(string.ascii_letters) for i in range(5))
+                value = ''.join(random.choice(string.ascii_letters) for i in range(5))
+                qstring = '?%s=%s' % (key, value)
+            url = self.settings.BASE_URL+base_url+qstring
+            dest = '/global/galaxy/'+qstring
+            self.settings.verbose_print('requesting %s from %s...' % (url, country))
+            res = requests.get(url, headers=dict(self.settings.HEADERS.items() + {'X-Forwarded-For': self.settings.IP[country]}.items()), allow_redirects=False,)
+            self.settings.verbose_print('%d - %s' % (res.status_code, res.headers['Location']))
+            self.assertIn(res.status_code, [301, 302], 'Redirection Not returned')
+            self.assertEqual(res.headers['Location'], dest, 
+                             'Redirection location is wrong:%s expected with country %s but found %s' % (dest, country, res.headers['Location'],) 
+                             )
+        
+                    
+class TestF_CS_1084157(basetest.BaseTest):
+    """
+    removing the cookie <PreferBandwith> - which is only set when IE7.0 in /uk and under.
+    """
+    
+    def test_remove_cookie(self):
+        # we test /uk with no IE, /uk with IE, non /uk with IE and no IE
+        # all of them will return no PreferBandwidth cookie
+        targets = [('/uk/home', 'MSIE 7.0'), ('/uk/home', 'MSIE 8.0'), ('/uk/home', 'Mozilla/5.0'),
+                   ('/sec/home/', 'MSIE 7.0'), ('/sec/home/', 'MSIE 8.0'), ('/sec/home/', 'Mozilla/5.0'),]
+        for path, agent in targets:
+            url = self.settings.BASE_URL + path
+            self.settings.verbose_print('requesting %s with %s' %(url, agent,))
+            res = requests.get(url, headers=dict(self.settings.HEADERS.items() + [('X-Forwarded-For',agent)]),)
+            self.assertNotIn('PreferBandwidth', res.cookies.keys(),
+                              'Cookie PreferBandwidth is not removed in %s with %s' % (url, agent))
+
+class TestF_CS_1081042(basetest.BaseTest):
+    """
+    set no-cache on /us/support/email/product, /us/support/email/product/foo-bar
+    """
+    
+    def test_check_ttl(self):
+        self.verify_cache('/us/support/email/product', 'no-store')
+        self.verify_cache('/us/support/email/product/foo-bar', 'no-store')
+        
+class TestF_CS_1090976(basetest.BaseTest):
+    """
+    redirection as 
+    www.samsung.com/printer/recycle 
+    www.samsung.com/printer/star 
+    -> https://support-prc.samsung.com/star_b2b/pages/home.aspx 
+    """
+        
+    def test_redirection_check(self):
+        redirections = [('/printer/recycle', 'https://support-prc.samsung.com/star_b2b/pages/home.aspx'),
+                        ('/printer/star', 'https://support-prc.samsung.com/star_b2b/pages/home.aspx'),
+                        ('/printer/recycle/', 'https://support-prc.samsung.com/star_b2b/pages/home.aspx'),
+                        ('/printer/star/', 'https://support-prc.samsung.com/star_b2b/pages/home.aspx'),]
+        self.verify_redirection(redirections)
+        no_redirection = [('/printer/recycle/foo-bar', 'https://support-prc.samsung.com/star_b2b/pages/home.aspx'),
+                          ('/printer/star/amber', 'https://support-prc.samsung.com/star_b2b/pages/home.aspx')
+                          ]
+        self.verify_remove_redirection(no_redirection)
+
+class TestF_CS_1092321(basetest.BaseTest):
+    """
+    we change existing redirections to /sec/home to /sec/home/.
+    this will reduce one redirection for each client, and it will reduce one request to origin.
+    """
+    
+    def test_redirection_sec_home(self):
+        updated_redirections = [('/sec', 'http://www.samsung.com/sec/home', 'http://www.samsung.com/sec/home/',),
+                                ('/sec/', 'http://www.samsung.com/sec/home', 'http://www.samsung.com/sec/home/',),
+                                ('/sec/index.html', 'http://www.samsung.com/sec/home', 'http://www.samsung.com/sec/home/',),
+                                ('/sec/consumer/accessories/', 'http://www.samsung.com/sec/home', 'http://www.samsung.com/sec/home/',),
+                                ('/sec/consumer/accessories', 'http://www.samsung.com/sec/home', 'http://www.samsung.com/sec/home/',),
+                                ('/sec/galaxys4zoom/', 'http://www.samsung.com/sec/home', 'http://www.samsung.com/sec/home/',),
+                                ('/sec/galaxys4zoom', 'http://www.samsung.com/sec/home', 'http://www.samsung.com/sec/home/',),]
+        self.verify_update_redirection(updated_redirections)
+    
+    def test_redirection_with_cookie(self):
+        self.verify_redirection([('/', '/sec/home/')], cookies={'site_cd': 'sec'})
+        
+    def test_redirection_with_geoip(self):
+        redirections = [('/', '/sec/home/')]
+        self.verify_redirection(redirections, headers={'X-Forwarded-For': self.settings.IP['KR']})
+    
+    def test_redirection_with_mobile(self):
+        redirections = [('/sec/index.html', 'http://www.samsung.com/sec/home/')]
+        self.verify_redirection(redirections, headers={'User-Agent': self.settings.UA_STRING['iPhone']})
+        
+class TestF_CS_1096351(basetest.BaseTest):
+    """
+    cache no-store for /us/support/myAccountServiceStatus.do
+    """
+    
+    def test_no_cache(self):
+        self.verify_cache('/us/support/myAccountServiceStatus.do', 'no-store')
+        
+class TestF_CS_1098631(basetest.BaseTest):
+    """
+    contents targeting for /suhdtv, /galaxys6, /galaxys6edge
+    """
+    
+    def test_content_targeting(self):
+        self.verify_samsung_com_content_targeting('/suhdtv')
+        self.verify_samsung_com_content_targeting('/galaxys6')
+        self.verify_samsung_com_content_targeting('/galaxys6edge')
+        self.verify_samsung_com_content_targeting('/suhdtv/')
+        self.verify_samsung_com_content_targeting('/galaxys6/')
+        self.verify_samsung_com_content_targeting('/galaxys6edge/')
+        
+class TestF_CS_1103785(basetest.BaseTest):
+    """
+    adding verification of case-insensitiveness and new content targeting
+    "/unpack2015episode1"
+    """
+    
+    def test_content_targeting(self):
+        self.verify_samsung_com_content_targeting('/SuhdTV')
+        self.verify_samsung_com_content_targeting('/GalaxyS6')
+        self.verify_samsung_com_content_targeting('/galaxys6EDGE')
+        self.verify_samsung_com_content_targeting('/sUHDtv/')
+        self.verify_samsung_com_content_targeting('/GALAXYs6/')
+        self.verify_samsung_com_content_targeting('/galaxyS6edge/')
+#         self.verify_samsung_com_content_targeting('/unpack2015episode1')
+#         self.verify_samsung_com_content_targeting('/Unpack2015episode1')
+#         self.verify_samsung_com_content_targeting('/uNpack2015episode1/')
+        
+class TestF_CS_1106136(basetest.BaseTest):
+    """
+    changing the /unpack2015episode1 to /unpacked2015episode1.
+    """
+    
+    def test_content_targeting(self):
+        self.verify_samsung_com_content_targeting('/unpacked2015episode1')
+        self.verify_samsung_com_content_targeting('/Unpacked2015episode1')
+        self.verify_samsung_com_content_targeting('/uNpacked2015episode1/')
+        
+    def test_content_targeting2(self):
+        self.verify_samsung_com_content_targeting('/unpacked2015')
+        self.verify_samsung_com_content_targeting('/Unpacked2015')
+        self.verify_samsung_com_content_targeting('/uNpacked2015/')
+        
+class TestF_CS_1107795(basetest.BaseTest):
+    """
+    redirection test for /{site_cd}/promotion/galaxy 
+    to /{site_cd}/promotions/galaxy
+    """
+    
+    def test_redirection_on_all_site_cd(self):
+        site_cds = ['ae_ar', 'ae', 'africa_en', 'africa_fr', 'africa_pt', 'ar', 'at', 'au', 'be_fr', 'be', 'bg', 
+                   'br', 'ca_fr', 'ca', 'ch_fr', 'ch', 'cl', 'cn', 'co', 'cz', 'de', 'dk', 'ee', 'eg', 'es', 'fi', 
+                   'fr', 'gr', 'hk_en', 'hk', 'hr', 'hu', 'id', 'ie', 'il', 'in', 'iran', 'it', 'jp', 'kz_ru', 'latin', 
+                   'latin_en', 'levant', 'lt', 'lv', 'mx', 'my', 'n_africa', 'nl', 'no', 'nz', 'pe', 'ph', 'pk', 'pl', 
+                   'pt', 'ro', 'rs', 'ru', 'sa', 'se', 'sec', 'sg', 'sk', 'th', 'tr', 'tw', 'ua_ru', 'ua', 'uk',
+                   'us', 've', 'vn', 'za',]
+        redirections = [('/%s/promotion/galaxy' % x, 'http://www.samsung.com/%s/promotions/galaxy/' % x) for x in site_cds]
+        redirections_with_slash = [('/%s/promotion/galaxy/' % x, 'http://www.samsung.com/%s/promotions/galaxy/' % x) for x in site_cds]
+        self.verify_redirection(redirections)
+        self.verify_redirection(redirections_with_slash)
+        
+class TestF_CS_1110489(basetest.BaseTest):
+    """
+    redirection on /sec/consumer/it/display/signageTV (case insensitive)
+    """
+    
+    def test_redirections(self):
+        org = 'signagetv'
+        redirections = []
+        for i in range(512):
+            case = '{0:09b}'.format(i)
+            result = ''
+            for j in range(9):
+                result += (org[j] if case[j]== '0' else org[j].upper())
+            redirections.append(('/sec/consumer/it/display/%s' % result, '/sec/consumer/it/display/signagetv/'))
+            if i != 0:
+                redirections.append(('/sec/consumer/it/display/%s/' % result, '/sec/consumer/it/display/signagetv/'))
+#         redirections = [('/sec/consumer/it/display/signageTV/', '/sec/consumer/it/display/signagetv/'),
+#                         ('/sec/consumer/it/display/SignAgeTV', '/sec/consumer/it/display/signagetv/'),
+#                         ('/sec/consumer/it/display/signagetv', '/sec/consumer/it/display/signagetv/'),
+#                         ('/sec/consumer/it/display/signAgetv/', '/sec/consumer/it/display/signagetv/'),]
+        self.verify_redirection(redirections)
+
+class TestF_CS_1116980(basetest.BaseTest):
+    """
+    new redirection sets for 36 countries. + no-store setup for B2B section.
+    """
+    
+    def test_b2bredirections(self):
+        site_cds = ['ca_fr', 'ca', 'mx', 'br', 'latin', 'latin_en', 've', 'co', 
+                   'ar', 'cl', 'pe', 'au', 'nz', 'id', 'th', 'vn', 'my', 'ru', 'ua', 
+                   'ua_ru', 'kz_ru', 'in', 'ae', 'ae_ar', 'il', 'sa', 'sa_en', 'tr', 
+                   'levant', 'pk', 'eg', 'n_africa', 'africa_en', 'africa_fr', 
+                   'africa_pt', 'za',]
+        for site_cd in site_cds:
+            redirections = [('/%s/business' % site_cd, 'http://www.samsung.com/%s/business/home' % site_cd),
+                            ('/%s/business/' % site_cd, 'http://www.samsung.com/%s/business/home' % site_cd),
+                            ('/%s/business/index.html' % site_cd, 'http://www.samsung.com/%s/business/home' % site_cd),
+                            ('/%s/business/home' % site_cd, 'http://www.samsung.com/%s/business/' % site_cd),
+                            ('/%s/business/home/' % site_cd, 'http://www.samsung.com/%s/business/' % site_cd),
+                            ('/%s/business/index.html' % site_cd, 'http://www.samsung.com/%s/business/' % site_cd),
+                            ('/%s/business/resource/foo-bar' % site_cd, 'http://www.samsung.com/%s/business/insights/foo-bar' % site_cd),
+                            ('/%s/business/resource' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/index.html' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/bli-report' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/solution-brief' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/article' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/installation-guide' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/bli-report/' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/solution-brief/' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/article/' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/installation-guide/' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
+                            ('/%s/business/support' % site_cd.upper(), 'http://www.samsung.com/%s/business/support/' % site_cd),
+                            ('/%s/business/insights' % site_cd.upper(), 'http://www.samsung.com/%s/business/insights/' % site_cd),
+                            ('/%s/business/step' % site_cd.upper(), 'http://www.samsung.com/%s/business/step/' % site_cd),
+                            ('/%s/business/ebc' % site_cd.upper(), 'http://www.samsung.com/%s/business/ebc/' % site_cd),
+                            ('/%s/business/countrysite' % site_cd.upper(), 'http://www.samsung.com/%s/business/countrysite/' % site_cd),
+                            ('/%s/business/support/foo-bar' % site_cd.upper(), 'http://www.samsung.com/%s/business/support/foo-bar' % site_cd),
+                            ('/%s/business/insights/foo-bar' % site_cd.upper(), 'http://www.samsung.com/%s/business/insights/foo-bar' % site_cd),
+                            ('/%s/business/step/foo-bar' % site_cd.upper(), 'http://www.samsung.com/%s/business/step/foo-bar' % site_cd),
+                            ('/%s/business/ebc/foo-bar' % site_cd.upper(), 'http://www.samsung.com/%s/business/ebc/foo-bar' % site_cd),
+                            ('/%s/business/countrysite/foo-bar' % site_cd.upper(), 'http://www.samsung.com/%s/business/countrysite/foo-bar' % site_cd),]
+            self.verify_redirection(redirections)
+        
+    def test_remove_cache(self):
+        site_cds = ['ae_ar', 'ae', 'africa_en', 'africa_fr', 'africa_pt', 'ar', 'at', 'au', 'be_fr', 'be', 'bg', 
+                   'br', 'ca_fr', 'ca', 'ch_fr', 'ch', 'cl', 'cn', 'co', 'cz', 'de', 'dk', 'ee', 'eg', 'es', 'fi', 
+                   'fr', 'gr', 'hk_en', 'hk', 'hr', 'hu', 'id', 'ie', 'il', 'in', 'iran', 'it', 'jp', 'kz_ru', 'latin', 
+                   'latin_en', 'levant', 'lt', 'lv', 'mx', 'my', 'n_africa', 'nl', 'no', 'nz', 'pe', 'ph', 'pk', 'pl', 
+                   'pt', 'ro', 'rs', 'ru', 'sa', 'se', 'sec', 'sg', 'sk', 'th', 'tr', 'tw', 'ua_ru', 'ua', 'uk',
+                   'us', 've', 'vn', 'za',]
+        urls = ['/%s/business/my-business/cust-userloging',
+                '/%s/business/my-business/recentlyInsights',
+                '/%s/business/my-business/myProfile',
+                '/%s/data-business/mybusiness/recently-product',
+                '/%s/data-business/mybusiness/recently-solution',
+                '/%s/data-business/mybusiness/recently-insights',
+                '/%s/data-business/mybusiness/clipped-insights',
+                '/%s/data-business/mybusiness/clipped-insights-delete',
+                '/%s/business/my-business/save-myprofile',
+                '/%s/business/my-business/checkB2BUser',
+                '/%s/business/my-business/edit-myprofile',
+                '/%s/business/my-business/deleteProfile',
+                '/%s/business/my-business/partnerportal/sso',
+                '/%s/business/my-business/partnerportal/ssotest',
+                '/%s/business/my-business/partnerportal/checkticket',]
+        test_urls = [x % y for x in urls for y in site_cds]
+        
+        for test_url in test_urls:
+            self.verify_cache(test_url, 'no-store')
+        
+
 if __name__ == "__main__":
     unittest.main()
