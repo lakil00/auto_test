@@ -106,7 +106,7 @@ class TestF_CS_1029729(basetest.BaseTest):
     def test_content_targeting(self):
         redirections = [('/gearcircle/?cid=499', '/sec/gearcircle/?cid=499'),
                         ('/gearcircle/', '/sec/gearcircle/'),]
-        self.verify_redirection(redirections, {'X-Forward-For': '23.15.13.10'}) #call from KR
+        self.verify_redirection(redirections, headers={'X-Forwarded-For': '23.15.13.10'}) #call from KR
 
         
 class TestF_CS_1033640(basetest.BaseTest):
@@ -665,33 +665,31 @@ class TestF_CS_1116980(basetest.BaseTest):
                    'levant', 'pk', 'eg', 'n_africa', 'africa_en', 'africa_fr', 
                    'africa_pt', 'za',]
         for site_cd in site_cds:
-            redirections = [('/%s/business' % site_cd, 'http://www.samsung.com/%s/business/home' % site_cd),
-                            ('/%s/business/' % site_cd, 'http://www.samsung.com/%s/business/home' % site_cd),
-                            ('/%s/business/index.html' % site_cd, 'http://www.samsung.com/%s/business/home' % site_cd),
-                            ('/%s/business/home' % site_cd, 'http://www.samsung.com/%s/business/' % site_cd),
-                            ('/%s/business/home/' % site_cd, 'http://www.samsung.com/%s/business/' % site_cd),
-                            ('/%s/business/index.html' % site_cd, 'http://www.samsung.com/%s/business/' % site_cd),
-                            ('/%s/business/resource/foo-bar' % site_cd, 'http://www.samsung.com/%s/business/insights/foo-bar' % site_cd),
-                            ('/%s/business/resource' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
-                            ('/%s/business/resource/index.html' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
-                            ('/%s/business/resource/bli-report' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
-                            ('/%s/business/resource/solution-brief' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
-                            ('/%s/business/resource/article' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
-                            ('/%s/business/resource/installation-guide' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
-                            ('/%s/business/resource/bli-report/' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
-                            ('/%s/business/resource/solution-brief/' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
-                            ('/%s/business/resource/article/' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
-                            ('/%s/business/resource/installation-guide/' % site_cd, 'http://www.samsung.com/%s/business/insights/' % site_cd),
-                            ('/%s/business/support' % site_cd.upper(), 'http://www.samsung.com/%s/business/support/' % site_cd),
-                            ('/%s/business/insights' % site_cd.upper(), 'http://www.samsung.com/%s/business/insights/' % site_cd),
-                            ('/%s/business/step' % site_cd.upper(), 'http://www.samsung.com/%s/business/step/' % site_cd),
-                            ('/%s/business/ebc' % site_cd.upper(), 'http://www.samsung.com/%s/business/ebc/' % site_cd),
-                            ('/%s/business/countrysite' % site_cd.upper(), 'http://www.samsung.com/%s/business/countrysite/' % site_cd),
-                            ('/%s/business/support/foo-bar' % site_cd.upper(), 'http://www.samsung.com/%s/business/support/foo-bar' % site_cd),
-                            ('/%s/business/insights/foo-bar' % site_cd.upper(), 'http://www.samsung.com/%s/business/insights/foo-bar' % site_cd),
-                            ('/%s/business/step/foo-bar' % site_cd.upper(), 'http://www.samsung.com/%s/business/step/foo-bar' % site_cd),
-                            ('/%s/business/ebc/foo-bar' % site_cd.upper(), 'http://www.samsung.com/%s/business/ebc/foo-bar' % site_cd),
-                            ('/%s/business/countrysite/foo-bar' % site_cd.upper(), 'http://www.samsung.com/%s/business/countrysite/foo-bar' % site_cd),]
+            redirections = [
+                            ('/%s/business/home' % site_cd, '/%s/business/' % site_cd),
+                            ('/%s/business/home/' % site_cd, '/%s/business/' % site_cd),
+                            ('/%s/business/index.html' % site_cd, '/%s/business/' % site_cd),
+                            ('/%s/business/resource/foo-bar' % site_cd, '/%s/business/insights/foo-bar' % site_cd),
+                            ('/%s/business/resource' % site_cd, '/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/index.html' % site_cd, '/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/bli-report' % site_cd, '/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/solution-brief' % site_cd, '/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/article' % site_cd, '/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/installation-guide' % site_cd, '/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/bli-report/' % site_cd, '/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/solution-brief/' % site_cd, '/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/article/' % site_cd, '/%s/business/insights/' % site_cd),
+                            ('/%s/business/resource/installation-guide/' % site_cd, '/%s/business/insights/' % site_cd),
+                            ('/%s/business/support' % site_cd.upper(), '/%s/business/support/' % site_cd),
+                            ('/%s/business/insights' % site_cd.upper(), '/%s/business/insights/' % site_cd),
+                            ('/%s/business/step' % site_cd.upper(), '/%s/business/step/' % site_cd),
+                            ('/%s/business/ebc' % site_cd.upper(), '/%s/business/ebc/' % site_cd),
+                            ('/%s/business/countrysite' % site_cd.upper(), '/%s/business/countrysite/' % site_cd),
+                            ('/%s/business/support/foo-bar' % site_cd.upper(), '/%s/business/support/foo-bar' % site_cd),
+                            ('/%s/business/insights/foo-bar' % site_cd.upper(), '/%s/business/insights/foo-bar' % site_cd),
+                            ('/%s/business/step/foo-bar' % site_cd.upper(), '/%s/business/step/foo-bar' % site_cd),
+                            ('/%s/business/ebc/foo-bar' % site_cd.upper(), '/%s/business/ebc/foo-bar' % site_cd),
+                            ('/%s/business/countrysite/foo-bar' % site_cd.upper(), '/%s/business/countrysite/foo-bar' % site_cd),]
             self.verify_redirection(redirections)
         
     def test_remove_cache(self):
@@ -720,7 +718,659 @@ class TestF_CS_1116980(basetest.BaseTest):
         
         for test_url in test_urls:
             self.verify_cache(test_url, 'no-store')
+            
+class TestF_CS_1122047(basetest.BaseTest):
+    """
+    add country to content targeting
+    SI (slovenia) => /si
+    MT (Malta) => /it
+    """
+    
+    def test_slovenia(self):
+        self.verify_redirection([('/galaxys6', '/si/galaxys6')], {'X-Forwarded-For': settings.IP['SI']})
+        
+    def test_malta(self):
+        self.verify_redirection([('/galaxys6', '/it/galaxys6')], {'X-Forwarded-For': settings.IP['MT']})
         
 
+class TestF_CS_1129428(basetest.BaseTest):
+    """
+    add content targeting, /solvefortomorrow
+    """
+    def test_content(self):
+        self.verify_samsung_com_content_targeting('/solvefortomorrow')
+        self.verify_samsung_com_content_targeting('/Solvefortomorrow/')
+        
+class TestF_CS_1130670(basetest.BaseTest):
+    """
+    setup TTL 30 for /us/price/*
+    """
+    
+    def test_cache_ttl(self):
+        self.verify_cache('/us/price/samsungB2CEcomPrice.json', '30m')
+        
+class TestF_CS_1132136(basetest.BaseTest):
+    """
+    /global/galaxy* URL must redirected to  lower character if there is any upper case.
+    """
+    
+    def test_lower_case(self):
+        self.verify_redirection([('/global/Galaxy', 'http://www.samsung.com/global/galaxy'),
+                                 ('/global/galaxy/GalaxyS6/', 'http://www.samsung.com/global/galaxy/galaxys6/')])
+        
+class TestF_CS_1137246(basetest.BaseTest):
+    """
+    /sec/business => /sec/business/home with redirection cid, redirectId
+    """
+    
+    def test_redirections(self):
+        origin = ['/sec/business','/sec/business/']
+        querystring = [('cid=100&redirectionId=abc','redirectionId=abc&cid=100'), ('cid=100','cid=100'), 
+                       ('redirectionId=abc','redirectionId=abc')]
+        redirections = [('%s?%s' % (x,y[0]), '%s?%s' % ('http://www.samsung.com/sec/business/home',y[1])) for x in origin for y in querystring]
+        
+        self.verify_redirection(redirections)
+        
+class TestF_CS_1137446(basetest.BaseTest):
+    """
+    /global/business/mobile/ should be redirected to local pages;
+    based on cookie site_cd, or country code + accept lang.
+    """
+    def test_site_cd(self):
+        dests = [('ie', '/ie/business/business-products/mobile-devices/',), 
+                ('uk', '/uk/business/business-products/mobile-devices/',), 
+                ('sg', '/sg/business/business-products/mobile-device/',), 
+                ('ph', '/ph/business/business-products/mobile-devices/',), 
+                ('it', '/it/business/business-products/mobile-devices/',), 
+                ('es', '/es/business/business-products/mobile-devices/',), 
+                ('hu', '/hu/business/business-products/mobile-devices/',), 
+                ('de', '/de/business/business-products/mobile-devices/',), 
+                ('se', '/se/business/business-products/mobile-devices/',), 
+                ('dk', '/dk/business/business-products/mobile-devices/',), 
+                ('fi', '/fi/business/business-products/mobile-devices/',), 
+                ('no', '/no/business/business-products/mobile-devices/',), 
+                ('fr', '/fr/business/business-products/mobile-devices/',), 
+                ('pt', '/pt/business/business-products/mobile-devices/',), 
+                ('pl', '/pl/business/business-products/mobile-devices/',), 
+                ('gr', '/gr/business/',), 
+                ('cz', '/cz/business/business-products/mobile-devices/',), 
+                ('sk', '/sk/business/business-products/mobile-devices/',), 
+                ('ro', '/ro/business/business-products/mobile-phones/',), 
+                ('bg', '/bg/business/',), 
+                ('at', '/at/business/business-products/mobile-devices/',), 
+                ('ch', '/ch/business/business-products/mobile-devices/',), 
+                ('ch_fr', '/ch_fr/business/business-products/mobile-devices/',), 
+                ('be', '/be/business/business-products/mobile-devices/',), 
+                ('be_fr', '/be_fr/business/business-products/mobile-devices/',), 
+                ('nl', '/nl/business/business-products/mobile-devices/',), 
+                ('lv', '/lv/business/',), 
+                ('lt', '/lt/business/',), 
+                ('ee', '/ee/business/',), 
+                ('rs', '/rs/business/business-products/mobile-devices/',), 
+                ('hr', '/hr/business/business-products/mobile-devices/',), 
+                ('si', '/si/business/',), 
+                ('iran', '/iran/business/',), 
+                ('ca_fr', '/ca_fr/business/business-products/mobile-devices/',), 
+                ('ca', '/ca/business/business-products/mobile-devices/',), 
+                ('mx', '/mx/business/business-products/mobile-devices/',), 
+                ('br', '/br/business/',), 
+                ('latin', '/latin/business/business-products/mobile-devices/',), 
+                ('latin_en', '/latin_en/business/business-products/mobile-devices/',), 
+                ('ve', '/ve/business/business-products/mobile-devices/',), 
+                ('co', '/co/business/business-products/mobile-devices/',), 
+                ('ar', '/ar/business/business-products/mobile-devices/',), 
+                ('cl', '/cl/business/business-products/mobile-devices/',), 
+                ('pe', '/pe/business/business-products/mobile-devices/',), 
+                ('au', '/au/business/business-products/mobile-devices/',), 
+                ('nz', '/nz/business/business-products/mobile-devices/',), 
+                ('id', '/id/business/business-products/mobile-devices/',), 
+                ('th', '/th/business/business-products/mobile-devices/',), 
+                ('vn', '/vn/business/business-products/mobile-devices/',), 
+                ('my', '/my/business/business-products/mobile-device/',), 
+                ('ru', '/ru/business/business-products/mobile-devices/',), 
+                ('ua', '/ua/business/business-products/mobile-devices/',), 
+                ('ua_ru', '/ua_ru/business/business-products/mobile-devices/',), 
+                ('kz_ru', '/kz_ru/business/business-products/mobile-devices/',), 
+                ('in', '/in/business/business-products/mobile-devices/',), 
+                ('ae', '/ae/business/business-products/mobile-devices/',), 
+                ('ae_ar', '/ae_ar/business/business-products/mobile-devices/',), 
+                ('il', '/il/business/business-products/mobile-device/',), 
+                ('sa', '/sa/business/business-products/mobile-phones/',), 
+                ('sa_en', '/sa_en/business/business-products/mobile-phones/',), 
+                ('tr', '/tr/business/business-products/mobile-devices/',), 
+                ('levant', '/levant/business/',), 
+                ('pk', '/pk/business/business-products/mobile-devices/',), 
+                ('eg', '/eg/business/',), 
+                ('n_africa', '/n_africa/business/business-products/mobile-devices/',), 
+                ('africa_en', '/africa_en/business/business-products/mobile-devices/',), 
+                ('africa_fr', '/africa_fr/business/business-products/mobile-devices/',), 
+                ('africa_pt', '/africa_pt/business/business-products/mobile-devices/',), 
+                ('za', '/za/business/business-products/mobile-devices/',), 
+                ('sec', '/sec/business/',), 
+                ('us', '/us/business/',), ]
+        
+        for site_cd, dest in dests:
+            self.verify_redirection([('/global/business/mobile', dest),
+                                     ('/global/business/mobile/', dest),
+                                     ('/global/business/mobile/test-url', dest)], cookies={'site_cd': site_cd})
+            
+    def test_geoip(self):
+        src1 = '/global/business/mobile'
+        src2 = src1 + '/'
+        dests = [('ie', '/ie/business/business-products/mobile-devices/',), 
+                ('gb', '/uk/business/business-products/mobile-devices/',), 
+                ('sg', '/sg/business/business-products/mobile-device/',), 
+                ('ph', '/ph/business/business-products/mobile-devices/',), 
+                ('it', '/it/business/business-products/mobile-devices/',), 
+                ('es', '/es/business/business-products/mobile-devices/',), 
+                ('hu', '/hu/business/business-products/mobile-devices/',), 
+                ('de', '/de/business/business-products/mobile-devices/',), 
+                ('se', '/se/business/business-products/mobile-devices/',), 
+                ('dk', '/dk/business/business-products/mobile-devices/',), 
+                ('fi', '/fi/business/business-products/mobile-devices/',), 
+                ('no', '/no/business/business-products/mobile-devices/',), 
+                ('fr', '/fr/business/business-products/mobile-devices/',), 
+                ('pt', '/pt/business/business-products/mobile-devices/',), 
+                ('pl', '/pl/business/business-products/mobile-devices/',), 
+                ('gr', '/gr/business/',), 
+                ('cz', '/cz/business/business-products/mobile-devices/',), 
+                ('sk', '/sk/business/business-products/mobile-devices/',), 
+                ('ro', '/ro/business/business-products/mobile-phones/',), 
+                ('bg', '/bg/business/',), 
+                ('at', '/at/business/business-products/mobile-devices/',), 
+                ('ch', '/ch/business/business-products/mobile-devices/',), 
+                ('be', '/be/business/business-products/mobile-devices/',), 
+                ('nl', '/nl/business/business-products/mobile-devices/',), 
+                ('lv', '/lv/business/',), 
+                ('lt', '/lt/business/',), 
+                ('ee', '/ee/business/',), 
+                ('rs', '/rs/business/business-products/mobile-devices/',), 
+                ('hr', '/hr/business/business-products/mobile-devices/',), 
+                ('si', '/si/business/',), 
+                ('ca', '/ca/business/business-products/mobile-devices/',), 
+                ('mx', '/mx/business/business-products/mobile-devices/',), 
+                ('br', '/br/business/',), 
+                ('ve', '/ve/business/business-products/mobile-devices/',), 
+                ('co', '/co/business/business-products/mobile-devices/',), 
+                ('ar', '/ar/business/business-products/mobile-devices/',), 
+                ('cl', '/cl/business/business-products/mobile-devices/',), 
+                ('pe', '/pe/business/business-products/mobile-devices/',), 
+                ('au', '/au/business/business-products/mobile-devices/',), 
+                ('nz', '/nz/business/business-products/mobile-devices/',), 
+                ('id', '/id/business/business-products/mobile-devices/',), 
+                ('th', '/th/business/business-products/mobile-devices/',), 
+                ('vn', '/vn/business/business-products/mobile-devices/',), 
+                ('my', '/my/business/business-products/mobile-device/',), 
+                ('ru', '/ru/business/business-products/mobile-devices/',), 
+                ('ua', '/ua/business/business-products/mobile-devices/',),  
+                ('in', '/in/business/business-products/mobile-devices/',), 
+                ('ae', '/ae/business/business-products/mobile-devices/',), 
+                ('il', '/il/business/business-products/mobile-device/',), 
+                ('sa', '/sa/business/business-products/mobile-phones/',), 
+                ('tr', '/tr/business/business-products/mobile-devices/',), 
+                ('pk', '/pk/business/business-products/mobile-devices/',), 
+                ('eg', '/eg/business/',),  
+                ('za', '/za/business/business-products/mobile-devices/',), 
+                ('kr', '/sec/business/',), 
+                ('us', '/us/business/',), 
+                ('ir', '/iran/business/',),]
+        
+        for site_cd, dest in dests:
+            if site_cd.upper() in settings.IP.keys():
+                self.verify_redirection([(src1, dest), (src2, dest)],
+                                        headers = {"X-Forwarded-For": settings.IP[site_cd.upper()]})
+        # 'ch_fr', 'be_fr', 'ca_fr'
+        dests = [('BE', '/be_fr/business/business-products/mobile-devices/'),
+                ('CH', '/ch_fr/business/business-products/mobile-devices/'),
+                ('CA', '/ca_fr/business/business-products/mobile-devices/')]
+        for country, dest in dests:
+            self.verify_redirection([(src1, dest), (src2, dest)], 
+                                    headers={"X-Forwarded-For": settings.IP[country], "Accept-Language": "fr-FR"})
+            
+        # 'latin', 
+        countries = 'BO CR EC SV GT HN NI PA DO CU'.split(' ')
+        dest = '/latin/business/business-products/mobile-devices/'
+        for country in countries:
+            self.verify_redirection([(src1, dest), (src2, dest), (src1+'/test-url', dest)], 
+                                    headers={"X-Forwarded-For": settings.IP[country]})
+        'latin_en'
+        countries = 'AW BB BM HT JM MQ TT MF KY AG SR BZ LC GY GP'.split(' ')
+        dest_en = '/latin_en/business/business-products/mobile-devices/' 
+        for country in countries:
+            self.verify_redirection([(src1, dest_en), (src2, dest_en)], 
+                                    headers={"X-Forwarded-For": settings.IP[country]})
+
+        # 'ua_ru', 'kz_ru' 
+        dests = [('UA', '/ua_ru/business/business-products/mobile-devices/'),
+                ('KZ', '/kz_ru/business/business-products/mobile-devices/')]
+        for country, dest in dests:
+            self.verify_redirection([(src1, dest), (src2, dest)], 
+                                    headers={"X-Forwarded-For": settings.IP[country], "Accept-Language": "ru-RS"})
+        
+        # ('ae_ar', 
+        dest = '/ae_ar/business/business-products/mobile-devices/'
+        self.verify_redirection([(src1, dest), (src2, dest)], 
+                                    headers={"X-Forwarded-For": settings.IP['AE'], "Accept-Language": "ar_AR"}) 
+
+        # 'sa_en'
+        dest = '/sa_en/business/business-products/mobile-phones/'
+        self.verify_redirection([(src1, dest), (src2, dest)], 
+                                    headers={"X-Forwarded-For": settings.IP['SA'], "Accept-Language": "en_US"})         
+
+        # 'levant', 
+        dest = '/levant/business/'
+        countries = 'PS IQ LB SY JO'.split(' ')
+        for country in countries:
+            self.verify_redirection([(src1, dest), (src2, dest)], 
+                                    headers={"X-Forwarded-For": settings.IP[country]})
+            
+        'n_africa'
+        countries = 'MA DZ TN'.split(' ')
+        dest = '/n_africa/business/business-products/mobile-devices/'
+        for country in countries:
+            self.verify_redirection([(src1, dest), (src2, dest)], 
+                                    headers={"X-Forwarded-For": settings.IP[country]})
+        'africa_en'
+        countries = 'KE NG ET GH UG TZ GM LR SL'.split(' ')
+        dest = '/africa_en/business/business-products/mobile-devices/'
+        for country in countries:
+            self.verify_redirection([(src1, dest), (src2, dest)], 
+                                    headers={"X-Forwarded-For": settings.IP[country]})
+        
+        # 'africa_fr'
+        countries = 'CI MR SN CD CM CI TG TD RW ML BJ NE DJ GA CG BI BF KM CF GN RE MU MG YT SC'.split(' ')
+        dest = '/africa_fr/business/business-products/mobile-devices/'
+        for country in countries:
+            self.verify_redirection([(src1, dest), (src2, dest)], 
+                                    headers={"X-Forwarded-For": settings.IP[country]})
+        
+        # 'africa_pt'
+        countries = 'AO MZ GW CV'.split(' ')
+        dest = '/africa_pt/business/business-products/mobile-devices/'
+        for country in countries:
+            self.verify_redirection([(src1, dest), (src2, dest)], 
+                                    headers={"X-Forwarded-For": settings.IP[country]})
+
+
+class TestF_CS_1142775(basetest.BaseTest):
+    """
+    Luxembourg users will be redirected to /be_fr/
+    in / and content targetting
+    """
+    def test_luxembourg(self):
+        self.verify_redirection([('/', '/be_fr/'),
+                                 ('/solvefortomorrow', '/be_fr/solvefortomorrow')], 
+                                headers={'X-Forwarded-For': settings.IP['LU']})
+     
+        
+class TestF_CS_1141355(basetest.BaseTest):
+    """
+    maintain the querystring when redirect from /{site_cd} => /{site_cd}/home
+    """
+    
+    def test_maintainquerystring(self):
+        org_redirections = [
+                            ('/ar','http://www.samsung.com/ar/home'),
+                        ('/br','http://www.samsung.com/br/home'),
+                        ('/ca','http://www.samsung.com/ca/home'),
+                        ('/ca_fr','http://www.samsung.com/ca_fr/home'),
+                        ('/cl','http://www.samsung.com/cl/home'),
+                        ('/co','http://www.samsung.com/co/home'),
+                        ('/latin','http://www.samsung.com/latin/home'),
+                        ('/latin_en','http://www.samsung.com/latin_en/home'),
+                        ('/mx','http://www.samsung.com/mx/home'),
+                        ('/pe','http://www.samsung.com/pe/home'),
+                        ('/ve','http://www.samsung.com/ve/home'),
+                        ('/au','/au/home'),
+                        ('/cn','http://www.samsung.com/cn/home'),
+                        ('/hk','http://www.samsung.com/hk/home'),
+                        ('/hk_en','http://www.samsung.com/hk_en/home'),
+                        ('/id','http://www.samsung.com/id/home'),
+                        ('/in','http://www.samsung.com/in/home'),
+                        ('/jp','/jp/home'),
+                        ('/my','http://www.samsung.com/my/home'),
+                        ('/nz','/nz/home'),
+                        ('/ph','http://www.samsung.com/ph/home'),
+                        ('/sec','http://www.samsung.com/sec/home/'),
+                        ('/sg','http://www.samsung.com/sg/home'),
+                        ('/th','http://www.samsung.com/th/home'),
+                        ('/tw','http://www.samsung.com/tw/home'),
+                        ('/vn','http://www.samsung.com/vn/home'),
+                        ('/ae','http://www.samsung.com/ae/home'),
+                        ('/ae_ar','http://www.samsung.com/ae_ar/home'),
+                        ('/africa_en','http://www.samsung.com/africa_en/home'),
+                        ('/africa_fr','http://www.samsung.com/africa_fr/home'),
+                        ('/africa_pt','http://www.samsung.com/africa_pt/home'),
+                        ('/eg','http://www.samsung.com/eg/home'),
+                        ('/il','http://www.samsung.com/il/home'),
+                        ('/iran','http://www.samsung.com/iran/home'),
+                        ('/kz_ru','http://www.samsung.com/kz_ru/home'),
+                        ('/levant','http://www.samsung.com/levant/home'),
+                        ('/n_africa','http://www.samsung.com/n_africa/home'),
+                        ('/ru','http://www.samsung.com/ru/home'),
+                        ('/sa','http://www.samsung.com/sa/home'),
+                        ('/sa_en','http://www.samsung.com/sa_en/home'),
+                        ('/ua','http://www.samsung.com/ua/home'),
+                        ('/ua_ru','http://www.samsung.com/ua_ru/home'),
+                        ('/za','http://www.samsung.com/za/home'),
+                        ('/at','http://www.samsung.com/at/home'),
+                        ('/be','http://www.samsung.com/be/home'),
+                        ('/be_fr','http://www.samsung.com/be_fr/home'),
+                        ('/bg','http://www.samsung.com/bg/home'),
+                        ('/ch','http://www.samsung.com/ch/home'),
+                        ('/ch_fr','http://www.samsung.com/ch_fr/home'),
+                        ('/cz','http://www.samsung.com/cz/home'),
+                        ('/de','/de/home'),
+                        ('/dk','http://www.samsung.com/dk/home'),
+                        ('/ee','http://www.samsung.com/ee/home'),
+                        ('/es','/es/home'),
+                        ('/fi','http://www.samsung.com/fi/home'),
+                        ('/fr','/fr/home'),
+                        ('/gr','http://www.samsung.com/gr/home'),
+                        ('/hr','http://www.samsung.com/hr/home'),
+                        ('/hu','http://www.samsung.com/hu/home'),
+                        ('/ie','http://www.samsung.com/ie/home'),
+                        ('/it','/it/home'),
+                        ('/lt','http://www.samsung.com/lt/home'),
+                        ('/lv','http://www.samsung.com/lv/home'),
+                        ('/nl','http://www.samsung.com/nl/home'),
+                        ('/no','http://www.samsung.com/no/home'),
+                        ('/pk','http://www.samsung.com/pk/home'),
+                        ('/pl','http://www.samsung.com/pl/home'),
+                        ('/pt','http://www.samsung.com/pt/home'),
+                        ('/ro','http://www.samsung.com/ro/home'),
+                        ('/rs','http://www.samsung.com/rs/home'),
+                        ('/se','http://www.samsung.com/se/home'),
+                        ('/si','http://www.samsung.com/si/home'),
+                        ('/sk','http://www.samsung.com/sk/home'),
+                        ('/tr','http://www.samsung.com/tr/home'),
+                        ('/uk','/uk/home'),]
+        redirections = [(x[0]+'?cid=100',x[1]+'?cid=100') for x in org_redirections]
+        self.verify_redirection(redirections)
+        redirections = [(x[0]+'?redirectionId=91a0',x[1]+'?redirectionId=91a0') for x in org_redirections]
+        self.verify_redirection(redirections)
+        redirections = [(x[0]+'?cid=100&redirectionId=91a0',x[1]+'?cid=100&redirectionId=91a0') for x in org_redirections]
+        self.verify_redirection(redirections)
+        
+class TestF_CS_1144762(basetest.BaseTest):
+    """
+    /global/business/enterprise-communication/* redirection
+    """
+    def test_redirection_ent_comm_cookie(self):
+        base_url = '/global/business/enterprise-communications'
+        site_cds= [('ie', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('uk', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('sg', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ph', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('it', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('es', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('hu', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('de', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('se', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('dk', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('fi', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('no', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('fr', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('pt', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('pl', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('gr', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('cz', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('sk', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ro', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('bg', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('at', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ch', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ch_fr', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('be', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('be_fr', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('nl', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('lv', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('lt', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ee', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('rs', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('hr', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('si', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('iran', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ca_fr', 'http://www.samsung.com/us/business/business-communication-systems/wireless-enterprise-solutions/'),
+                    ('ca', 'http://www.samsung.com/us/business/business-communication-systems/wireless-enterprise-solutions/'),
+                    ('mx', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('br', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('latin', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('latin_en', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ve', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('co', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ar', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('cl', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('pe', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('au', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('nz', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('id', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('th', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('vn', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('my', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ru', 'http://www.samsung.com/ru/business/business-products/enterprise-communications/'),
+                    ('ua', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ua_ru', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('kz_ru', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('in', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ae', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ae_ar', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('il', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('sa', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('sa_en', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('tr', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('levant', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('pk', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('eg', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('n_africa', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('africa_en', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('africa_fr', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('africa_pt', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('za', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('sec', '/sec/business/'),
+                    ('us', '/us/business/'),]
+        for site_cd, dest in site_cds:
+            settings.verbose_print('site_cd %s' % site_cd)
+            self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], 
+                                    cookies = {'site_cd': site_cd})
+    
+    def test_redirection_ent_comm_geo(self):
+        base_url = '/global/business/enterprise-communications'
+        countries = [('ie', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('gb', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('sg', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ph', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('it', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('es', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('hu', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('de', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('se', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('dk', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('fi', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('no', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('fr', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('pt', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('pl', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('gr', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('cz', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('sk', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ro', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('bg', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('at', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ch', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('be', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('nl', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('lv', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('lt', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ee', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('rs', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('hr', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('SI', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('IR', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ca', 'http://www.samsung.com/us/business/business-communication-systems/wireless-enterprise-solutions/'),
+                    ('mx', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('br', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ve', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('co', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ar', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('cl', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('pe', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('au', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('nz', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('id', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('th', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('vn', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('my', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ru', 'http://www.samsung.com/ru/business/business-products/enterprise-communications/'),
+                    ('ua', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('kz', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('in', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('ae', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('il', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('sa', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('tr', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('pk', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('eg', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('za', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('kr', 'http://www.samsung.com/sec/business/'),
+                    ('us', 'http://www.samsung.com/us/business/'),
+                    ('CI', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('PS', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ('CR', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                    ]
+        for country, dest in countries:
+            settings.verbose_print('country %s' % country)
+            self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP[country.upper()]})
+            
+        
+                # 'ch_fr', 'be_fr', 'ca_fr'
+        dests = [('BE', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                ('CH', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                ('CA', 'http://www.samsung.com/us/business/business-communication-systems/wireless-enterprise-solutions/')]
+        for country, dest in dests:
+            settings.verbose_print('country %s' % country)
+            self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP[country.upper()], "Accept-Language": "fr-FR"})
+            
+        # 'latin', 
+        countries = 'BO CR EC SV GT HN NI PA DO CU'.split(' ')
+        dest = 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'
+        for country in countries:
+            settings.verbose_print('country %s' % country)
+            self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP[country.upper()],"X-Forwarded-For": settings.IP[country]})
+        'latin_en'
+        countries = 'AW BB BM HT JM MQ TT MF KY AG SR BZ LC GY GP'.split(' ')
+        dest = 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/' 
+        for country in countries:
+            settings.verbose_print('country %s' % country)
+            self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP[country.upper()],})
+
+        # 'ua_ru', 'kz_ru' 
+        dests = [('UA', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'),
+                ('KZ', 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/')]
+        for country, dest in dests:
+            settings.verbose_print('country %s' % country)
+            self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP[country.upper()], "Accept-Language": "ru-RS"})
+        
+        # ('ae_ar', 
+        dest = 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'
+        settings.verbose_print('country ae_ar')
+        self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP['AE'],"Accept-Language": "ar_AR"}) 
+
+        # 'sa_en'
+        dest = 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'
+        settings.verbose_print('country sa')
+        self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP['SA'],"Accept-Language": "en_US"})         
+
+        # 'levant', 
+        dest = 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'
+        countries = 'PS IQ LB SY JO'.split(' ')
+        for country in countries:
+            settings.verbose_print('country %s' % country)
+            self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP[country.upper()],})
+            
+        'n_africa'
+        countries = 'MA DZ TN'.split(' ')
+        dest = 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'
+        for country in countries:
+            settings.verbose_print('country %s' % country)
+            self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP[country.upper()],})
+        'africa_en'
+        countries = 'KE NG ET GH UG TZ GM LR SL'.split(' ')
+        dest = 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'
+        for country in countries:
+            settings.verbose_print('country %s' % country)
+            self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP[country.upper()],})
+        
+        # 'africa_fr'
+        countries = 'CI MR SN CD CM CI TG TD RW ML BJ NE DJ GA CG BI BF KM CF GN RE MU MG YT SC'.split(' ')
+        dest = 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'
+        for country in countries:
+            settings.verbose_print('country %s' % country)
+            self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP[country.upper()],})
+        
+        # 'africa_pt'
+        countries = 'AO MZ GW CV'.split(' ')
+        dest = 'http://www.samsung.com/uk/business/business-products/wireless-enterprise/'
+        for country in countries:
+            settings.verbose_print('country %s' % country)
+            self.verify_redirection([(base_url, dest),
+                                     (base_url+'/test-url', dest),
+                                     (base_url+'/test-url?abc=1000', dest)], headers={'X-Forwarded-For': settings.IP[country.upper()],})
+                    
+            
+class TestF_CS_1147451(basetest.BaseTest):
+    """
+    /galaxy/foo-bar will go to /global/galaxy/foo-bar
+    """
+    
+    def test_redirection(self):
+        self.verify_redirection([('/galaxy/test-url', '/global/galaxy/test-url'),
+                                 ('/Galaxy/Talbot/', '/global/galaxy/Talbot/'),
+                                 ('/galaXy/foo-bar/?q=system', '/global/galaxy/foo-bar/?q=system'),
+                                 ])
+        
+class TestF_CS_1153295(basetest.BaseTest):
+    """
+    redirection for /global/galaxy with upper case and querystrings handled.
+    """
+    
+    def test_redirection(self):
+        normal_redirections = [('/global/galaxy/galaxys6/galaxy-s6-edge/m_index.html','http://www.samsung.com/global/galaxy/galaxys6/galaxy-s6-edge/'),
+                        ('/global/galaxy/galaxys6/galaxy-s6/m_index.html','http://www.samsung.com/global/galaxy/galaxys6/galaxy-s6/'),
+                        ('/global/galaxy/galaxys6/m_index.html','http://www.samsung.com/global/galaxy/'),
+                        ('/global/galaxy/galaxys6/wearables/m_index.html','http://www.samsung.com/global/galaxy/wearables/note4/'),
+                        ('/global/galaxy/galaxys6/accessories/m_index.html','http://www.samsung.com/global/galaxy/galaxys6/accessories/'),
+                        ('/global/galaxy/worldtour2015/m_index.html','http://www.samsung.com/global/galaxy/worldtour2015/'),
+                        ('/global/galaxy/unpacked2015/m_index.html','http://www.samsung.com/global/galaxy/unpacked2015/'),
+                        ('/global/galaxy/scarpet2015/m_index.html','http://www.samsung.com/global/galaxy/scarpet2015/'),
+                        ('/global/galaxy/galaxy-story/m_index.html','http://www.samsung.com/global/galaxy/galaxystory/brandstory/'),]
+        redirections = normal_redirections + [(x[0].upper(), x[1]) for x in normal_redirections] + [(x[0]+'?pid=100', x[1]+'?pid=100') for x in normal_redirections]
+        self.verify_redirection(redirections)
+        
+ 
 if __name__ == "__main__":
     unittest.main()

@@ -90,7 +90,8 @@ class BaseTest(unittest.TestCase):
             settings.verbose_print('requesting %s...' % url) 
             res = requests.get(url, headers=headers, allow_redirects=False, cookies=cookies)
             settings.verbose_print('%d - %s' % (res.status_code, res.url))
-            self.assertEqual(res.headers['X-Check-Cacheable'], 'NO', 'cache no-store expected but X-Check-Cacheable is not NO')
+            if res.status_code == 200:
+                self.assertEqual(res.headers['X-Check-Cacheable'], 'NO', 'cache no-store expected but X-Check-Cacheable is not NO')
         else:
             url = settings.BASE_URL + source
             settings.verbose_print('requesting %s...' % url) 
@@ -114,7 +115,7 @@ class BaseTest(unittest.TestCase):
                    'br', 'ca_fr', 'ca', 'ch_fr', 'ch', 'cl', 'cn', 'co', 'cz', 'de', 'dk', 'ee', 'eg', 'es', 'fi', 
                    'fr', 'gr', 'hk_en', 'hk', 'hr', 'hu', 'id', 'ie', 'il', 'in', 'iran', 'it', 'jp', 'kz_ru', 'latin', 
                    'latin_en', 'levant', 'lt', 'lv', 'mx', 'my', 'n_africa', 'nl', 'no', 'nz', 'pe', 'ph', 'pk', 'pl', 
-                   'pt', 'ro', 'rs', 'ru', 'sa', 'se', 'sec', 'sg', 'sk', 'th', 'tr', 'tw', 'ua_ru', 'ua', 'uk', 'us', 've', 'vn', 'za',]
+                   'pt', 'ro', 'rs', 'ru', 'sa', 'si', 'se', 'sec', 'sg', 'sk', 'th', 'tr', 'tw', 'ua_ru', 'ua', 'uk', 'us', 've', 'vn', 'za',]
         for cookie in cookie1:
             url = self.settings.BASE_URL+base_url
             dest = '/%s%s' % (cookie, base_url.lower())
@@ -153,7 +154,7 @@ class BaseTest(unittest.TestCase):
                     ('DK', [(None, '/dk'+base_url),]),
                     ('TR', [(None, '/tr'+base_url),]),
                     ('ES', [(None, '/es'+base_url),]),
-                    ('IT', [(None, '/it'+base_url),]),
+                    ('IT MT', [(None, '/it'+base_url),]),
                     ('GB', [(None, '/uk'+base_url),]),
                     ('IE', [(None, '/ie'+base_url),]),
                     ('FR', [(None, '/fr'+base_url),]),
@@ -187,6 +188,7 @@ class BaseTest(unittest.TestCase):
                     ('IL', [(None, '/il'+base_url),]),
                     ('KZ', [(None, '/kz_ru'+base_url),]),
                     ('RO', [(None, '/ro'+base_url),]),
+                    ('SI', [(None, '/si'+base_url),]),
                     ('VE', [(None, '/ve'+base_url),]),
                     ('PS IQ LB SY JO', [(None, '/levant'+base_url),]),
                     ('CI MR', [(None, '/africa_fr'+base_url),]),
@@ -200,6 +202,7 @@ class BaseTest(unittest.TestCase):
                     ('AO MZ', [(None, '/africa_pt'+base_url),]),
                     ('MA DZ TN', [(None, '/n_africa'+base_url),]),
                     ('SN CD CM CI TG TD RW ML BJ NE DJ GA CG BI BF KM CF GN RE MU MG YT SC', [(None, '/africa_fr'+base_url),]), 
+                    ('LU', [(None, '/be_fr'+base_url),])
                     ]
         for countries, condition in conditions:
             for country in countries.split(' '):

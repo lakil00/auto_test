@@ -15,6 +15,7 @@ def verbose_print(arg):
         print arg
 
 BASE_URL = 'http://23.1.151.46'
+# BASE_URL = 'http://205.185.220.231'
 #BASE_URL = 'http://www.samsung.com'
 
 HOST = 'www.samsung.com'
