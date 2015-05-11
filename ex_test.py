@@ -1366,10 +1366,36 @@ class TestF_CS_1153295(basetest.BaseTest):
                         ('/global/galaxy/galaxys6/accessories/m_index.html','http://www.samsung.com/global/galaxy/galaxys6/accessories/'),
                         ('/global/galaxy/worldtour2015/m_index.html','http://www.samsung.com/global/galaxy/worldtour2015/'),
                         ('/global/galaxy/unpacked2015/m_index.html','http://www.samsung.com/global/galaxy/unpacked2015/'),
-                        ('/global/galaxy/scarpet2015/m_index.html','http://www.samsung.com/global/galaxy/scarpet2015/'),
-                        ('/global/galaxy/galaxy-story/m_index.html','http://www.samsung.com/global/galaxy/galaxystory/brandstory/'),]
+                        ('/global/galaxy/scarpet2015/m_index.html','http://www.samsung.com/global/galaxy/scarpet2015/'),]
+#                         ('/global/galaxy/galaxy-story/m_index.html','http://www.samsung.com/global/galaxy/galaxystory/brandstory/'),]
         redirections = normal_redirections + [(x[0].upper(), x[1]) for x in normal_redirections] + [(x[0]+'?pid=100', x[1]+'?pid=100') for x in normal_redirections]
         self.verify_redirection(redirections)
+        
+class TestF_CS_1158754(basetest.BaseTest):
+    """
+    redirection for /global/galaxy/galaxystory/brandstory/ and others.
+    also upper case and querystrings handled.
+    """
+    
+    def test_redirections(self):
+        normal_redirections = [('/global/galaxy/galaxystory/brandstory/', 'http://www.samsung.com/global/galaxy/galaxystory/brand-story/'),
+                        ('/global/galaxy/galaxy-story/', 'http://www.samsung.com/global/galaxy/galaxystory/brand-story/'),
+                        ('/global/galaxy/galaxy-story/m_index.html', 'http://www.samsung.com/global/galaxy/galaxystory/brand-story/'),
+                        ('/global/galaxy/galaxys6/wearable/', 'http://www.samsung.com/global/galaxy/wearables/note4/'),
+                        ('/global/galaxy/galaxys6/wearable/m_index.html', 'http://www.samsung.com/global/galaxy/wearables/note4/'),]
+        redirections = normal_redirections + [(x[0].upper(), x[1]) for x in normal_redirections] + [(x[0]+'?pid=100', x[1]+'?pid=100') for x in normal_redirections]
+        self.verify_redirection(redirections)
+        
+        
+class TestF_CS_1180497(basetest.BaseTest):
+    """
+    /suhd content targeting.
+    """
+    
+    def test_content_targeting(self):
+        urls = ['/suhd', '/suhd/', '/SUHD', '/SUHD?abc=100', '/suhd/?abc=100']
+        for url in urls:
+            self.verify_samsung_com_content_targeting(url)
         
  
 if __name__ == "__main__":
