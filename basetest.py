@@ -22,19 +22,26 @@ class BaseTest(unittest.TestCase):
         print '\n%s - %s' % (case_id, self.__doc__[1:-1].replace('\t',''), )
         self.settings = settings # TODO: this must be given by runner later.
         
+    def get(self, url, headers={}, cookies={}, allow_redirects=False):
+        """
+        run a GET with given url, headers, cookies.
+        """
+        url = self.settings.BASE_URL+url
+        header = self.settings.HEADERS
+        if headers:
+            header = copy.deepcopy(self.settings.HEADERS)
+            header.update(headers)
+        self.settings.verbose_print('requesting %s...' % url)
+        return requests.get(url, headers=header, allow_redirects=allow_redirects, cookies=cookies)
+        
+        
     def verify_redirection(self, redirections, headers={}, cookies={}):
         """
         verifies whether input redirections are working fine.
         <redirections> are list of pairs, such as [('src','dest'),] url.
         """
-        header = self.settings.HEADERS
-        if headers:
-            header = copy.deepcopy(self.settings.HEADERS)
-            header.update(headers)
         for source, dest in redirections:
-            url = self.settings.BASE_URL+source
-            self.settings.verbose_print('requesting %s...' % url)
-            res = requests.get(url, headers=header, allow_redirects=False, cookies=cookies)
+            res = self.get(source, headers=headers, cookies=cookies)
             self.settings.verbose_print('%d - %s' % (res.status_code, res.headers['Location']))
             self.assertIn(res.status_code, [301, 302], 'Redirection Not returned')
             self.assertEqual(res.headers['Location'], dest, 'Redirection location is wrong:%s found, %s expected' % (res.headers['Location'], dest))
@@ -44,14 +51,8 @@ class BaseTest(unittest.TestCase):
         verify whether given redirections are removed.
         remove_redirections must be a list of pairs such as [('src', 'dest'),] url
         """
-        header = self.settings.HEADERS
-        if headers:
-            header = copy.deepcopy(self.settings.HEADERS)
-            header.update(headers)
-        for source, dest in remove_redirections:
-            url = settings.BASE_URL + source
-            settings.verbose_print('requesting %s...' % url) 
-            res = requests.get(url, headers=header, allow_redirects=False, cookies=cookies)
+        for source, dest in remove_redirections: 
+            res = self.get(source, headers=headers, cookies=cookies)
             if res.status_code in [301,302]:
                 settings.verbose_print('%d - %s' % (res.status_code, res.headers['Location']))
                 self.assertNotEqual(res.headers['Location'], dest, 'Redirection is not removed for %s' % source)
